@@ -35,6 +35,8 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - frp-ex
+    - mtl
+    - vector
 
 tests:
   frp-ex-test:

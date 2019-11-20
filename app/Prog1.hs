@@ -18,9 +18,13 @@ removeIndices = mapS (\((_, a), (_, b)) -> (a, b))
 finalProgram :: SF Int (Int, Int)
 finalProgram = indexSignal >>> split >>> removeIndices
 
-program :: IO ()
+program :: Run Int (Int, Int) ()
 program = liftSignal finalProgram [ch1] [ch2]
   where
     ch1 = ReadInt
     ch2 = WriteIntInt
 
+_main :: IO ()
+_main = do
+  run program initBuffers
+  return ()
