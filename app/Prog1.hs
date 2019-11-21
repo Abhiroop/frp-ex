@@ -10,7 +10,12 @@ indexSignal :: SF Int (Index, Int)
 indexSignal = scanrS (\x (i,_) -> (i + 1, x)) (-1, -1)
 
 split :: SF (Index, Int)  ((EvenIndex,Int), (OddIndex, Int))
-split = (filterS (\(index, val) -> even index)) &&& (filterS (\(index, val) -> odd index))
+split = (~&&~) (\(index, val) -> even index)
+        (mapS id)
+        (mapS id)
+
+
+--  (filterS (\(index, val) -> even index)) &&& (filterS (\(index, val) -> odd index))
 
 removeIndices :: SF  ((EvenIndex,Int), (OddIndex, Int)) (Int, Int)
 removeIndices = mapS (\((_, a), (_, b)) -> (a, b))
@@ -26,5 +31,5 @@ program = liftSignal finalProgram [ch1] [ch2]
 
 _main :: IO ()
 _main = do
-  run program initBuffers
+  run program
   return ()
