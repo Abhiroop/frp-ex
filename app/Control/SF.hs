@@ -19,7 +19,6 @@ import Control.Arrow
 import Control.Category
 import Control.Monad.State.Lazy as S
 
-import Data.Coerce
 import Data.Dynamic
 import Data.Vector
 
