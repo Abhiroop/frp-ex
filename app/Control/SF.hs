@@ -52,6 +52,9 @@ run = flip runStateT initBuffers
 mapS :: (a -> b) -> SF a b
 mapS = arr
 
+scan :: (s -> a -> b) -> (s -> s) -> s -> Signal a -> (s, Signal b)
+scan f sf init var = (sf init , f init var)
+
 scanrS :: (a -> b -> b) -> b -> SF a b
 scanrS f init = SF {sf = sf'}
   where
@@ -201,3 +204,12 @@ data OutputChannel
   deriving Eq
 
 defaultValue = minBound :: Int
+
+
+test :: Int -> IO ()
+test s = do
+  x <- getLine
+  let cast = read x :: Int
+  let (newS, b) = scan (\s a -> s * a) (+ 1) s cast
+  print b
+  test newS
