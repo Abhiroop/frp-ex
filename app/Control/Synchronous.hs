@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 module Synchronous where
 
 import Control.Applicative
@@ -125,3 +126,18 @@ xs = Stream [0, 1]
 
 ys :: Stream Int
 ys = Stream [100, 102, 101,103]
+
+hold ydef c x = y
+  where
+    y = merge c x ((ydef `fby` y) `whenot` c)
+
+
+count d t = ok
+  where
+    ok = arr (== 0) cpt
+    cpt = zero ->>
+          (if t then pre cpt + 1 else pre cpt) `mod` d
+       -- ------------------------------------
+       --                  |
+       --       typechecks but not correct
+    zero = Stream (repeat 0)
