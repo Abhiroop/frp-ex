@@ -37,7 +37,10 @@ packages:
 # Dependency packages to be pulled from upstream that are not in the resolver
 # using the same syntax as the packages field.
 # (e.g., acme-missiles-0.3)
-# extra-deps: []
+extra-deps:
+  - type-sets-0.1.1.0@sha256:4d1d8288705d05dfc6c6e95575dedf5b66c9cbff8e739e0c3f5c0b4b3f1e690b
+  - cmptype-0.2.0.0@sha256:53259abc6fad3f6f0cf0040a0c4d6964de0c42a10a5360dc0d7ca9f95ce63a71
+  - magic-tyfams-0.1.1.0@sha256:40dcdf3f4b8d337aad2586f4b919cf430ddd348e43f2a448d85b4c52109fff46
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

@@ -36,6 +36,7 @@ executables:
     dependencies:
     - frp-ex
     - mtl
+    - type-sets
     - vector
 
 tests:

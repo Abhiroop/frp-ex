@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TypeFamilies #-}
-module StatefulSignals where
+module Control.StatefulSignals where
 
 import Control.Arrow
 import Control.Category

@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
-module Synchronous where
+module Control.Synchronous where
 
 import Control.Applicative
 import qualified Data.Bits as B
