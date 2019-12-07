@@ -6,6 +6,11 @@ import Data.Type.Bool
 import GHC.TypeLits
 import Type.Set
 
+
+
+type family Singleton (t :: k) :: TypeSet k where
+  Singleton s = Insert s Empty
+
 type family AnyIntersection (s1 :: TypeSet k) (s2 :: TypeSet k) :: Bool where
   AnyIntersection Empty _ = False
   AnyIntersection _ Empty = False
@@ -38,5 +43,75 @@ class Arrow a where
   first :: a r b c -> a r (b,d) (c,d)
   (>>>) :: a r1 b c -> a r2 c d -> a (DisjointUnion r1 r2) b d
 
-class ArrowChoice a where
+class Arrow a => ArrowChoice a where
   unsafeCompose :: a r1 b c -> a r2 c d -> a (Merge r1 r2) b d
+
+data SFM m r a b = SFM
+  {sfmFun :: a -> m (b, SFM m r a b)}
+
+instance Monad m => Arrow (SFM m) where
+  arr f = SFM h
+    where
+      h x = return (f x, SFM h)
+
+  first (SFM f) = SFM (h f)
+    where
+      h f (x,z) = do
+        (y, SFM f') <- f x
+        return ((y,z), SFM (h f'))
+
+  SFM f >>> SFM g = SFM (h f g)
+    where
+      h f g x = do
+        (y, SFM f') <- f x
+        (z, SFM g') <- g y
+        return (z, SFM (h f' g'))
+
+instance Monad m => ArrowChoice (SFM m) where
+  SFM f `unsafeCompose` SFM g = SFM (h f g)
+    where
+      h f g x = do
+        (y, SFM f') <- f x
+        (z, SFM g') <- g y
+        return (z, SFM (h f' g'))
+
+
+
+type SF = SFM IO
+
+source :: IO c -> SF (Singleton r) () c
+source action = SFM g
+  where
+    g = \_ -> do
+      c <- action
+      return (c, SFM g)
+
+sink :: (b -> IO ()) -> SF (Singleton r) b ()
+sink cont = SFM g
+  where
+    g = \b -> do
+      cont b
+      return ((), SFM g)
+
+
+data Cmd
+
+foo :: SF (Singleton Cmd) () String
+foo = source getLine
+
+bar :: SF (Singleton Cmd) String ()
+bar = sink (\b -> putStrLn $ "Hello " ++ b)
+
+{-
+
+• Trying to compose same resources
+
+baz :: SF (Merge (Singleton Cmd) (Singleton Cmd)) () ()
+baz = foo >>> bar
+-}
+
+baz :: SF (Merge (Singleton Cmd) (Singleton Cmd)) () ()
+baz = foo `unsafeCompose` bar
+
+run = sfmFun baz () >> return ()
+
