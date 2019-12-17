@@ -94,6 +94,10 @@ sink cont = SFM g
       return ((), SFM g)
 
 
+pseudoMain :: Monad m => SFM m r () b -> m ()
+pseudoMain x = sfmFun x () >> return ()
+
+
 data Cmd
 
 foo :: SF (Singleton Cmd) () String
@@ -113,5 +117,43 @@ baz = foo >>> bar
 baz :: SF (Merge (Singleton Cmd) (Singleton Cmd)) () ()
 baz = foo `unsafeCompose` bar
 
+
 run = sfmFun baz () >> return ()
+
+-- or
+
+run1 = pseudoMain baz
+
+--------------------------------------------
+-- Test 2 --
+step1 :: SF Empty Int Int
+step1 = arr (+ 1)
+
+
+step2 :: SF Empty Int Int
+step2 = arr (* 5)
+
+getInt :: IO Int -- () -> Int
+getInt = fmap (\x -> read x :: Int) getLine
+
+newStep :: SF (Singleton Cmd) () Int
+newStep = source getInt
+
+printer :: SF (Singleton Cmd) Int ()
+printer = sink (\x -> putStrLn $ show x)
+
+finalProg :: SF (Merge (Singleton Cmd) Empty) () ()
+finalProg = newStep >>> step1 >>> step2 `unsafeCompose` printer
+
+finalRun = sfmFun finalProg () >> return ()
+-----------------------------------------------
+{-
+WAP which accepts a stream and emits a tuple with odd indexed element in the
+first projection and even indexed element in the second projection
+-}
+
+
+
+
+
 
